@@ -123,24 +123,24 @@ const CreateScreen = ({ navigation }) => {
       //   comment,
       // });
       // console.log("posts::", posts);
-      // await setDoc(doc(posts), {
-      //   photo,
-      //   location,
-      //   login,
-      //   userId,
-      //   comment,
-      // });
+      await setDoc(doc(db, "posts", `${uniquePostId}`), {
+        photo,
+        location,
+        login,
+        userId,
+        comment,
+      });
 
-      const result = await firebase.firestore()
-        .collection("posts")
-        .doc(String("" + uniquePostId))
-        .add({
-          photo,
-          location: location.coords,
-          login,
-          userId,
-          comment,
-        });
+      // const result = await firebase.firestore()
+      //   .collection("posts")
+      //   .doc(String("" + uniquePostId))
+      //   .add({
+      //     photo,
+      //     location: location.coords,
+      //     login,
+      //     userId,
+      //     comment,
+      //   });
       // const myPost = result.data();
       // if (myPost) {
       //   setComment(myPost);
