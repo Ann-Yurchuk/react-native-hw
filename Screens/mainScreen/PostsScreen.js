@@ -1,4 +1,3 @@
-// import { moduleName } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import DefaultScreenPost from "../nestedScreen/DefaultScreenPost";
 import CommentsScreen from "../nestedScreen/CommentsScreen";

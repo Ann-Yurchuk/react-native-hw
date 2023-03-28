@@ -10,12 +10,13 @@ import {
 const { updateUserProfile, authSignOut, authStateChange } = authSlice.actions;
 
 export const authSingUpUser =
-  ({ login, email, password }) =>
+  ({ login, email, password, avatar }) =>
   async (dispatch, getState) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(auth.currentUser, {
         displayName: login,
+        photoURL: avatar,
       });
 
       const { uid, displayName } = auth.currentUser;
@@ -23,6 +24,7 @@ export const authSingUpUser =
         updateUserProfile({
           userId: uid,
           login: displayName,
+          avatar: avatar,
         })
       );
     } catch (error) {
@@ -50,6 +52,7 @@ export const authSingInUser =
       const errorMessage = error.message;
     }
   };
+
 export const authSignOutUser = () => async (dispatch, getState) => {
   try {
     await auth.signOut(auth);
@@ -64,11 +67,12 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
   try {
     await onAuthStateChanged(auth, (user) => {
       if (user) {
-        const { uid, displayName } = auth.currentUser;
+        const { uid, displayName, photoURL } = auth.currentUser;
         dispatch(
           updateUserProfile({
             userId: uid,
             login: displayName,
+            avatar: photoURL,
           })
         );
         dispatch(authStateChange({ stateChange: true }));
@@ -79,3 +83,24 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
     const errorMessage = error.message;
   }
 };
+
+export const profileUpdateAvatar =
+  ({ avatar }) =>
+  async (dispatch, getState) => {
+    try {
+      await updateUserProfile(auth.currentUser, {
+        photoURL: avatar,
+      });
+      const { uid, displayName, photoURL } = auth.currentUser;
+      dispatch(
+        updateUserProfile({
+          userId: uid,
+          login: displayName,
+          avatar: photoURL,
+        })
+      );
+    } catch (error) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    }
+  };
