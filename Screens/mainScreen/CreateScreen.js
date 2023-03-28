@@ -16,30 +16,25 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { EvilIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { db } from "../../firebase/config";
 import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
-import {
-  collection,
-  addDoc,
-  doc,
-  setDoc,
-  getFirestore,
-} from "firebase/firestore";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
 
-import { firebase } from "@react-native-firebase/storage";
+const initialState = {
+  postName: "",
+  location: "",
+};
 
 const CreateScreen = ({ navigation }) => {
   const cameraRef = useRef();
   const [photo, setPhoto] = useState(null);
+  const [photoName, setPhotoName] = useState(initialState);
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
-  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] =
-    useState(null);
+  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   const [isPreview, setIsPreview] = useState(false);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  const [comment, setComment] = useState("");
 
   const { userId, login } = useSelector((state) => state.auth);
   const db = getFirestore();
@@ -57,12 +52,6 @@ const CreateScreen = ({ navigation }) => {
   }, []);
 
   const takePhoto = async () => {
-    console.log("====================================");
-    console.log(comment);
-    console.log("====================================");
-    console.log("====================================");
-    console.log(location);
-    console.log("====================================");
     if (cameraRef.current) {
       try {
         const options = { quality: 0.5, base64: true, skipProcessing: true };
@@ -115,36 +104,13 @@ const CreateScreen = ({ navigation }) => {
     try {
       const photo = await uploadPhoto();
       const uniquePostId = Date.now().toString();
-      // const posts = await db.addDoc(collection("posts"), {
-      //   photo,
-      //   location,
-      //   login,
-      //   userId,
-      //   comment,
-      // });
-      // console.log("posts::", posts);
       await setDoc(doc(db, "posts", `${uniquePostId}`), {
         photo,
+        photoName,
         location,
         login,
         userId,
-        comment,
       });
-
-      // const result = await firebase.firestore()
-      //   .collection("posts")
-      //   .doc(String("" + uniquePostId))
-      //   .add({
-      //     photo,
-      //     location: location.coords,
-      //     login,
-      //     userId,
-      //     comment,
-      //   });
-      // const myPost = result.data();
-      // if (myPost) {
-      //   setComment(myPost);
-      // }
     } catch (error) {
       console.log(error.message);
     }
@@ -152,7 +118,7 @@ const CreateScreen = ({ navigation }) => {
 
   const sendPhoto = () => {
     uploadPost();
-    navigation.navigate("Default", { photo });
+    navigation.navigate("Default");
     setPhoto(null);
   };
 
@@ -169,7 +135,6 @@ const CreateScreen = ({ navigation }) => {
         aspect: [4, 3],
         quality: 1,
       });
-
       console.log(result);
       setHasMediaLibraryPermission(result.status === "granted");
       if (!result.canceled) {
@@ -234,14 +199,13 @@ const CreateScreen = ({ navigation }) => {
           placeholder="Name post"
           style={styles.input}
           textAlign={"center"}
-          // value={state.postName}
+          value={photoName.postName}
           onFocus={() => {
             setIsShowKeyboard(true);
           }}
-          // onChangeText={(value) =>
-          //   setState((prevState) => ({ ...prevState, postName: value }))
-          // }
-          onChangeText={setComment}
+          onChangeText={(value) =>
+            setPhotoName((prevState) => ({ ...prevState, postName: value }))
+          }
         />
       </View>
       <View style={{ marginTop: 20 }}>
@@ -249,14 +213,13 @@ const CreateScreen = ({ navigation }) => {
           placeholder="Location"
           style={styles.input}
           textAlign={"center"}
-          // value={state.location}
+          value={photoName.location}
           onFocus={() => {
             setIsShowKeyboard(true);
           }}
-          // onChangeText={(value) =>
-          //   setState((prevState) => ({ ...prevState, location: value }))
-          // }
-          onChangeText={setComment}
+          onChangeText={(value) =>
+            setPhotoName((prevState) => ({ ...prevState, location: value }))
+          }
         />
       </View>
       <View>

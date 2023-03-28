@@ -11,6 +11,7 @@ const actions = {
     ...state,
     userId: payload.userId,
     login: payload.login,
+    avatar: payload.avatar,
   }),
   authStateChange: (state, { payload }) => ({
     ...state,
