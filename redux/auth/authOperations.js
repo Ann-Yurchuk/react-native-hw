@@ -19,12 +19,12 @@ export const authSingUpUser =
         photoURL: avatar,
       });
 
-      const { uid, displayName } = auth.currentUser;
+      const { uid, displayName, photoURL} = auth.currentUser;
       dispatch(
         updateUserProfile({
           userId: uid,
           login: displayName,
-          avatar: avatar,
+          avatar: photoURL,
         })
       );
     } catch (error) {
