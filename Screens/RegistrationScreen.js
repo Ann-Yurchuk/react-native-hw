@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import {
   StyleSheet,
   TextInput,
@@ -8,11 +9,16 @@ import {
   TouchableOpacity,
   Platform,
   Keyboard,
+  Image,
   ImageBackground,
 } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { useDispatch } from "react-redux";
+import { Camera } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
 import { authSingUpUser } from "../redux/auth/authOperations";
+import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import { EvilIcons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 
 const initialState = {
   login: "",
@@ -21,18 +27,89 @@ const initialState = {
 };
 
 export default function RegistrationScreen({ navigation }) {
+  const cameraRef = useRef();
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [state, setState] = useState(initialState);
+  const [avatarPhoto, setAvatarPhoto] = useState(null);
+  const [makePhoto, setMakePhoto] = useState(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
+  const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
+  const [isPreview, setIsPreview] = useState(false);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    (async () => {
+      const cameraPermission = await Camera.requestCameraPermissionsAsync();
+      setHasCameraPermission(cameraPermission.status === "granted");
+    })();
+  }, []);
+
+  const takePhoto = async () => {
+    if (cameraRef.current) {
+      try {
+        const options = { quality: 0.5, base64: true, skipProcessing: true };
+        const data = await cameraRef.current.takePictureAsync(options);
+        const source = data.uri;
+        if (source) {
+          await cameraRef.current.pausePreview();
+          setIsPreview(true);
+          setAvatarPhoto(source);
+          setMakePhoto("user");
+          await ImagePicker.launchImageLibraryAsync(source);
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+  };
+
+  const switchCamera = () => {
+    if (isPreview) {
+      return;
+    }
+    setCameraType((prevCameraType) =>
+      prevCameraType === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
+    );
+  };
+
+  const uploadPhotoAvatar = async () => {
+    try {
+      const storage = getStorage();
+      const response = await fetch(avatarPhoto);
+      const file = await response.blob();
+      const uniquePostId = Date.now().toString();
+      const data = await ref(storage, `avatars/${uniquePostId}`);
+      const uploadTask = await uploadBytes(data, file);
+      return await getDownloadURL(data);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const toggleMakePhoto = () => {
+    if (!makePhoto) {
+      setMakePhoto("camera");
+    }
+    if (makePhoto === "camera" || makePhoto === "user") {
+      setMakePhoto(null);
+    }
+  };
 
   const handleSubmit = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    dispatch(authSingUpUser(state));
+    const userAvatar = uploadPhotoAvatar();
+    dispatch(authSingUpUser({ ...state, avatar: userAvatar }));
     setState(initialState);
     navigation.navigate("Home", { authorize: true });
   };
+
+  if (hasCameraPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
 
   return (
     <TouchableWithoutFeedback onPress={handleSubmit}>
@@ -44,6 +121,43 @@ export default function RegistrationScreen({ navigation }) {
             style={styles.image}
             source={require("../assets/images/mountains.jpg")}
           >
+            <View>
+              {!makePhoto && (
+                <Image
+                  style={styles.imageAvatar}
+                  source={require("../assets/images/avatar.jpg")}
+                />
+              )}
+              {makePhoto === "camera" && (
+                <Camera style={styles.camera} ref={cameraRef} type={cameraType}>
+                  <View
+                    style={styles.takePhotoContainer}
+                    onPress={switchCamera}
+                  >
+                    {makePhoto && (
+                      <TouchableOpacity onPress={takePhoto}>
+                        <EvilIcons name="camera" size={25} color="black" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </Camera>
+              )}
+              {makePhoto === "user" && (
+                <Image
+                  source={{ uri: avatarPhoto }}
+                  style={{ width: 120, height: 120 }}
+                />
+              )}
+            </View>
+
+            <TouchableOpacity
+              style={styles.addButtonContainer}
+              onPress={toggleMakePhoto}
+            >
+              <View>
+                <AntDesign name="pluscircleo" size={24} color="grey" />
+              </View>
+            </TouchableOpacity>
             <View
               style={{
                 ...styles.form,
@@ -71,7 +185,7 @@ export default function RegistrationScreen({ navigation }) {
                   }
                 />
               </View>
-              <View>
+              <View style={{ marginTop: 20 }}>
                 <Text style={styles.inputTitle}>Email address</Text>
                 <TextInput
                   style={styles.input}
@@ -138,6 +252,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
   },
+  imageAvatar: {
+    width: 120,
+    height: 120,
+    top: 20,
+    borderRadius: 10,
+  },
   form: {
     backgroundColor: "#ffffff",
     marginHorizontal: 20,
@@ -180,10 +300,48 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     marginBottom: 33,
+    marginTop: 43,
   },
   headerTitle: {
     fontSize: 30,
     color: "#212121",
     fontFamily: "Roboto-Medium",
+  },
+  camera: {
+    width: 120,
+    height: 120,
+    marginHorizontal: 16,
+    marginTop: 372,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  takePhotoContainer: {
+    top: 70,
+    left: 10,
+    borderColor: "#e8e8e8",
+    borderRadius: 10,
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    width: 120,
+    height: 120,
+  },
+  buttonContainer: {
+    width: 60,
+    height: 60,
+    marginBottom: 25,
+    marginHorizontal: 170,
+    borderWidth: 1,
+    borderColor: "#ffffff",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+  },
+  addButtonContainer: {
+    left: 60,
+    top: -20,
+    backgroundColor: "#ffffff",
+    borderRadius: 50,
   },
 });

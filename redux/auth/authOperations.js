@@ -55,7 +55,7 @@ export const authSingInUser =
 
 export const authSignOutUser = () => async (dispatch, getState) => {
   try {
-    await auth.signOut(auth);
+    await auth.signOut();
     dispatch(authSignOut());
   } catch (error) {
     const errorCode = error.code;
