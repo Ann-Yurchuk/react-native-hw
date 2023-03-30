@@ -11,7 +11,16 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 import { db } from "../../firebase/config";
-import { collection, getDocs, doc, query, setDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  query,
+  setDoc,
+  deleteDoc,
+} from "firebase/firestore";
+// import moment from 'moment';
+// import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2023';
 
 import { AntDesign } from "@expo/vector-icons";
 
@@ -20,15 +29,18 @@ const CommentsScreen = ({ route }) => {
   const [allComments, setAllComments] = useState([]);
   const [commentId, setCommentId] = useState(null);
   const { id, photo } = route.params;
-  const { login, userId } = useSelector((state) => state.auth);
+  const { login, userId, avatar } = useSelector((state) => state.auth);
 
   const createComment = async () => {
     try {
+      // const date = new Date().moment.parseZone().tz("May 30th 2023 8PM", "MMM Do YYYY hA", "Europe/Kiev").format();
+      const date = new Date();
       const uniquePostId = Date.now().toString();
       await setDoc(doc(db, "posts", id, "comments", `${uniquePostId}`), {
         comment,
         login,
         userId,
+        date,
       });
       setCommentId(uniquePostId);
       setComment(null);
@@ -55,6 +67,11 @@ const CommentsScreen = ({ route }) => {
     getAllComments();
   }, [commentId]);
 
+  const deleteComment = async (uniqueCommentId) => {
+    await deleteDoc(doc(db, "posts", id, "comments", uniqueCommentId));
+    setCommentId(uniqueCommentId + "deleted");
+  };
+
   return (
     <>
       <View style={styles.container}>
@@ -68,10 +85,41 @@ const CommentsScreen = ({ route }) => {
             renderItem={({ item }) => (
               <View style={styles.commentContainer}>
                 <View style={styles.userComment}>
-                  <Image source={require("../../assets/images/ellipse.png")} />
-                  <Text>{item.login}</Text>
+                  {item.userId !== userId ? (
+                    <View>
+                      <Image
+                        style={{ width: 20, height: 20 }}
+                        source={require("../../assets/images/ellipse.png")}
+                      />
+                      <Text style={{ fontStyle: "italic" }}>
+                        Friend: {item.login}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View>
+                      <Image
+                        source={{ uri: avatar }}
+                        style={{ width: 20, height: 20 }}
+                      />
+
+                      <Text style={{ fontStyle: "italic" }}>
+                        I: {item.login}{" "}
+                      </Text>
+                    </View>
+                  )}
                 </View>
                 <Text>{item.comment}</Text>
+                {/* <View>{item.date.date}</View>
+                <View>{item.date.time}</View> */}
+                {item.userId === userId && (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => deleteComment(item.id)}
+                    style={styles.buttonContainerDelete}
+                  >
+                    <AntDesign name="delete" size={24} color="grey" />
+                  </TouchableOpacity>
+                )}
               </View>
             )}
           />
@@ -82,7 +130,7 @@ const CommentsScreen = ({ route }) => {
             style={styles.input}
             value={comment}
             onChangeText={(value) => setComment(value)}
-            placeholder="comment"
+            placeholder="Write your comment"
           ></TextInput>
         </View>
         <TouchableOpacity
@@ -91,17 +139,8 @@ const CommentsScreen = ({ route }) => {
           style={styles.sendContainer}
         >
           <Text style={styles.textButton}>Add comment</Text>
-          <AntDesign name="upcircle" size={24} color="black" />
+          <AntDesign name="upcircle" size={24} color="orange" />
         </TouchableOpacity>
-        <View>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setAllComments(null)}
-            style={styles.buttonContainer}
-          >
-            <AntDesign name="delete" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
       </View>
     </>
   );
@@ -145,7 +184,6 @@ const styles = StyleSheet.create({
   userComment: {
     flexDirection: "row",
     display: "flex",
-
     alignItems: "flex-start",
   },
   sendContainer: {
@@ -160,7 +198,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f6f6f6",
+    backgroundColor: "white",
     flexDirection: "row",
     display: "flex",
   },
@@ -172,6 +210,11 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginHorizontal: 10,
     width: 350,
+    backgroundColor: "white",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#e8e8e8",
+    marginTop: 10,
   },
 
   input: {
@@ -186,6 +229,17 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: 60,
     height: 60,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#ffffff",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+  },
+  buttonContainerDelete: {
+    width: 30,
+    height: 30,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: "#ffffff",

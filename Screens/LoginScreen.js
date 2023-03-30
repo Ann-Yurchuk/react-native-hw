@@ -31,7 +31,7 @@ export default function LoginScreen({ navigation }) {
     setState(initialState);
     console.log(isShowKeyboard);
     dispatch(authSingInUser(state));
-    navigation.navigate("Home");
+    navigation.navigate("Home", { authorize: true });
   };
 
   const keyboardHide = () => {

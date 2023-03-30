@@ -29,7 +29,8 @@ const CreateScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState(null);
   const [photoName, setPhotoName] = useState(initialState);
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
-  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
+  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] =
+    useState(null);
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   const [isPreview, setIsPreview] = useState(false);
   const [location, setLocation] = useState(null);
@@ -69,8 +70,8 @@ const CreateScreen = ({ navigation }) => {
           console.log("photo", source);
           setPhoto(source);
         }
-      } catch (err) {
-        console.log(err.message);
+      } catch (error) {
+        console.log(error.message);
       }
     }
   };
@@ -120,6 +121,7 @@ const CreateScreen = ({ navigation }) => {
     uploadPost();
     navigation.navigate("Default");
     setPhoto(null);
+    setPhotoName(initialState);
   };
 
   if (photo) {

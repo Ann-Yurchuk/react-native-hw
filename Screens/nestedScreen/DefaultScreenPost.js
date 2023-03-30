@@ -16,8 +16,8 @@ import { collection, getDocs, query } from "firebase/firestore";
 const DefaultScreenPost = ({ route, navigation }) => {
   const [posts, setPosts] = useState([]);
   const [comment, setComment] = useState(0);
-  const { login } = useSelector((state) => state.auth);
-  const { avatar } = useSelector((state) => state.auth);
+  const { avatar, userId, login } = useSelector((state) => state.auth);
+
   let uniquePostId = "";
   if (route.params) {
     const { uniquePostId } = route.params;
@@ -43,12 +43,56 @@ const DefaultScreenPost = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View>
-        <Image style={styles.imageAvatar} source={{ uri: avatar }} />
-        <View style={styles.profileText}>
-          <Text>{login}</Text>
+      {userId && (
+        <View>
+          {avatar === true || login === true ? (
+            <View>
+              <Image style={styles.imageAvatar} source={{ uri: avatar }} />
+              <View style={styles.profileText}>
+                <Text>Login:{login}</Text>
+              </View>
+            </View>
+          ) : (
+            <View>
+              <Image
+                style={styles.imageAvatar}
+                source={require("../../assets/images/avatar.jpg")}
+              />
+              <View style={styles.profileText}>
+                <Text>Login:{login}</Text>
+              </View>
+            </View>
+          )}
         </View>
-      </View>
+      )}
+
+      {/* <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.avatarContainer}>
+            {item.userId !== userId ? (
+              <View>
+                <Image
+                  style={styles.imageAvatar}
+                  source={require("../../assets/images/avatar.jpg")}
+                />
+                <View style={styles.profileText}>
+                  <Text>{item.login}</Text>
+                </View>
+              </View>
+            ) : (
+              <View>
+                <Image style={styles.imageAvatar} source={{ uri: avatar }} />
+                <View style={styles.profileText}>
+                  <Text>{item.login}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
+      /> */}
+
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
@@ -71,7 +115,7 @@ const DefaultScreenPost = ({ route, navigation }) => {
                 }
               >
                 <Text style={{ color: "grey" }}>
-                  <FontAwesome5 name="comments" size={24} color="black" />
+                  <FontAwesome5 name="comments" size={24} color="grey" />
                   {comment ?? 0}
                 </Text>
               </TouchableOpacity>
@@ -86,7 +130,7 @@ const DefaultScreenPost = ({ route, navigation }) => {
                 }
               >
                 <Text style={{ color: "grey" }}>
-                  <Ionicons name="location-outline" size={24} color="black" />
+                  <Ionicons name="location-outline" size={24} color="grey" />
                   <View>
                     <Text>{item.photoName.location}</Text>
                   </View>
@@ -105,6 +149,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
+  avatarContainer: {
+    marginBottom: 10,
+    display: "flex",
+    justifyContent: "center",
+    marginHorizontal: 10,
+    top: 10,
+    display: "flex",
+  },
   imageContainer: {
     marginBottom: 10,
     display: "flex",
@@ -116,12 +168,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 11,
     fontFamily: "Roboto-Regular",
+    padding: 10,
   },
   imageAvatar: {
     width: 80,
     height: 80,
-    top: 10,
     borderRadius: 10,
+    top: 10,
   },
   imagePost: {
     marginHorizontal: 10,
