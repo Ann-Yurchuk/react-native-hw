@@ -23,6 +23,7 @@ import {
 // import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2023';
 
 import { AntDesign } from "@expo/vector-icons";
+import { log } from "react-native-reanimated";
 
 const CommentsScreen = ({ route }) => {
   const [comment, setComment] = useState("");
@@ -34,7 +35,7 @@ const CommentsScreen = ({ route }) => {
   const createComment = async () => {
     try {
       // const date = new Date().moment.parseZone().tz("May 30th 2023 8PM", "MMM Do YYYY hA", "Europe/Kiev").format();
-      const date = new Date();
+      const date = new Date().toLocaleString();
       const uniquePostId = Date.now().toString();
       await setDoc(doc(db, "posts", id, "comments", `${uniquePostId}`), {
         comment,
@@ -109,8 +110,10 @@ const CommentsScreen = ({ route }) => {
                   )}
                 </View>
                 <Text>{item.comment}</Text>
-                {/* <View>{item.date.date}</View>
-                <View>{item.date.time}</View> */}
+                <View>
+                  <Text>{item.date}</Text>
+                </View>
+
                 {item.userId === userId && (
                   <TouchableOpacity
                     activeOpacity={0.8}
