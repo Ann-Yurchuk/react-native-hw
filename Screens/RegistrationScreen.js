@@ -60,6 +60,7 @@ export default function RegistrationScreen({ navigation }) {
         }
       } catch (error) {
         console.log(error.message);
+        alert(error.message);
       }
     }
   };
@@ -86,6 +87,7 @@ export default function RegistrationScreen({ navigation }) {
       return await getDownloadURL(data);
     } catch (error) {
       console.log(error.message);
+      alert(error.message);
     }
   };
 

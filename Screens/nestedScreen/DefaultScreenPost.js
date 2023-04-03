@@ -116,7 +116,7 @@ const DefaultScreenPost = ({ route, navigation }) => {
               >
                 <Text style={{ color: "grey" }}>
                   <FontAwesome5 name="comments" size={24} color="grey" />
-                  {comment ?? 0}
+                  {comment}
                 </Text>
               </TouchableOpacity>
 

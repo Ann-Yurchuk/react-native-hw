@@ -68,6 +68,7 @@ const ProfileScreen = ({ route, navigation }) => {
         }
       } catch (error) {
         console.log(error.message);
+        alert(error.message);
       }
     }
   };
@@ -217,7 +218,7 @@ const ProfileScreen = ({ route, navigation }) => {
                   >
                     <Text style={{ color: "grey" }}>
                       <FontAwesome5 name="comments" size={24} color="grey" />
-                      {comment ?? 0}
+                      {comment}
                     </Text>
                   </TouchableOpacity>
 
