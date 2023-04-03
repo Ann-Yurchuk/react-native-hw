@@ -325,14 +325,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   takePhotoContainer: {
-    top: 70,
-    left: 10,
+    top: -8,
+    left: -10,
     borderColor: "#e8e8e8",
     borderRadius: 10,
     backgroundColor: "#ffffff",
     borderWidth: 1,
-    width: 120,
-    height: 120,
+    width: 60,
+    height: 60,
   },
   buttonContainer: {
     width: 60,

@@ -23,7 +23,7 @@ import {
 // import moment from 'moment-timezone/builds/moment-timezone-with-data-2012-2023';
 
 import { AntDesign } from "@expo/vector-icons";
-import { log } from "react-native-reanimated";
+
 
 const CommentsScreen = ({ route }) => {
   const [comment, setComment] = useState("");
@@ -47,6 +47,7 @@ const CommentsScreen = ({ route }) => {
       setComment(null);
     } catch (error) {
       console.log(error.message);
+      alert(error.message);
     }
   };
 

@@ -1,5 +1,7 @@
 {
   "name": "react-native-homework",
+  "slug": "awesome-app",
+  "description": "This is an awesome-app",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
@@ -30,8 +32,10 @@
     "expo-sharing": "~11.0.1",
     "expo-splash-screen": "^0.17.5",
     "expo-status-bar": "~1.4.2",
+    "expo-updates": "~0.15.6",
     "firebase": "^9.18.0",
     "init": "^0.1.2",
+    "install": "^0.13.0",
     "install-expo-modules": "^0.5.1",
     "login": "^0.8.0",
     "moment": "^2.29.4",

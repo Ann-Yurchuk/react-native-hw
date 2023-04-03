@@ -29,8 +29,7 @@ const CreateScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState(null);
   const [photoName, setPhotoName] = useState(initialState);
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
-  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] =
-    useState(null);
+  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   const [isPreview, setIsPreview] = useState(false);
   const [location, setLocation] = useState(null);
@@ -72,6 +71,7 @@ const CreateScreen = ({ navigation }) => {
         }
       } catch (error) {
         console.log(error.message);
+        alert(error.message);
       }
     }
   };
@@ -98,6 +98,7 @@ const CreateScreen = ({ navigation }) => {
       return await getDownloadURL(data);
     } catch (error) {
       console.log(error.message);
+      alert(error.message);
     }
   };
 
@@ -114,6 +115,7 @@ const CreateScreen = ({ navigation }) => {
       });
     } catch (error) {
       console.log(error.message);
+      alert(error.message);
     }
   };
 
@@ -147,10 +149,7 @@ const CreateScreen = ({ navigation }) => {
 
     return (
       <SafeAreaView style={styles.container}>
-        <Image
-          source={{ uri: "data:image/jpg;base64," + photo.base64 }}
-          style={styles.preview}
-        />
+        <Image source={{ uri: photo }} style={{ width: 190, height: 190 }} />
         <Button title="Share" onPress={sharePic} />
         {!hasMediaLibraryPermission ? (
           <Button title="Save" onPress={savePhoto} />
@@ -283,8 +282,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#ffffff",
     borderWidth: 1,
-    width: 200,
-    height: 200,
+    width: 120,
+    height: 120,
   },
 
   sendContainer: {
